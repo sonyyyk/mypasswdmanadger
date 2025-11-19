@@ -1,0 +1,7 @@
+{
+  "sofi_parfylo": {
+    "password_hash": "pbkdf2:sha256:600000$cOHrmWEWEPN7yeqf$8838c348dcf68a484c3faf714c964cd443a81b10054b3f72c11be8dafdd3b2de",
+    "mfa_secret": "KFEOFHG3PR3BF3NNBEM4RKXIILUBYUMI",
+    "encryption_salt": "rCMzK4EPOu+cxZ9dzuuYSw=="
+  }
+}

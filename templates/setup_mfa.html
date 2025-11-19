@@ -1,0 +1,43 @@
+{% extends "model.html" %}
+{% block title %}Setup MFA — Password Manager{% endblock %}
+{% block content %}
+  <h2>Setup Two-Factor Authentication</h2>
+  <p class="lead">Scan this QR code with Google Authenticator app</p>
+
+  {% if qr_code %}
+  <div style="margin: 20px 0; text-align: center;">
+    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code for MFA Setup" 
+         style="border: 1px solid #ddd; border-radius: 8px; max-width: 300px;">
+  </div>
+  {% else %}
+  <div style="margin: 20px 0; padding: 20px; background: #fff3cd; border-radius: 8px;">
+    <p>QR code could not be generated</p>
+  </div>
+  {% endif %}
+
+  {% if mfa_secret %}
+  <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+    <p class="small" style="margin: 0;">Or enter this code manually in your authenticator app:</p>
+    <p style="margin: 10px 0; font-family: monospace; font-size: 18px; font-weight: bold;">
+      {{ mfa_secret }}
+    </p>
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 30px;">
+    <p class="small">After scanning the QR code or entering the manual code:</p>
+    <a class="btn" href="{{ url_for('login') }}" style="margin-top: 10px;">
+      Continue to Login
+    </a>
+  </div>
+
+  <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px;">
+    <p class="small" style="margin: 0; color: #0066cc;">
+      <strong>How to setup:</strong><br>
+      1. Install Google Authenticator on your phone<br>
+      2. Scan the QR code above or enter the manual code<br>
+      3. You'll get 6-digit codes that change every 30 seconds<br>
+      4. Use these codes when logging in
+    </p>
+  </div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "model.html" %}
+{% block title %}Login — Password Manager{% endblock %}
+{% block content %}
+  <h2>Sign in</h2>
+  <p class="lead">Use your username, password and MFA code.</p>
+
+  <form class="form" method="post" action="{{ url_for('login') }}">
+    <!-- 🔐 CSRF Token - ДОДАЄМО ЦЕ -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <input type="text" name="username" placeholder="Username" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <input type="text" name="mfa_code" placeholder="MFA Code (6 digits)" required maxlength="6" />
+    
+    <div style="display:flex; gap:10px; width:100%; justify-content:center; margin-top:6px;">
+      <button class="btn" type="submit">Sign in</button>
+      <a class="btn secondary" href="{{ url_for('register') }}">Register</a>
+    </div>
+  </form>
+
+  <div style="margin-top: 15px;">
+    <a href="{{ url_for('forgot') }}" class="small" style="color: var(--muted);">
+      I forgot my password
+    </a>
+  </div>
+{% endblock %}

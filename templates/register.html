@@ -1,0 +1,140 @@
+{% extends "model.html" %}
+{% block title %}Register — Password Manager{% endblock %}
+{% block content %}
+  <h2>Create account</h2>
+  <p class="lead">Pick a username and a SUPER secure master password.</p>
+
+  <div style="margin: 15px 0; padding: 15px; background: #fff3cd; border-radius: 8px;">
+    <p class="small" style="margin: 0; color: #856404;">
+      <strong>🎯 Password Requirements:</strong><br>
+      • <span id="req-length">📏 At least 16 characters</span><br>
+      • <span id="req-upper">🔠 One uppercase letter</span><br>
+      • <span id="req-special">⚡ One special character (!@#$% etc.)</span><br>
+      • <span id="req-color">🌈 Color of the rainbow</span><br>
+    </p>
+  </div>
+
+  <form class="form" method="post" action="{{ url_for('register') }}" onsubmit="return validatePassword()">
+    <!-- 🔐 CSRF TOKEN - ОБОВ'ЯЗКОВО ДОДАТИ -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Choose username" required 
+             pattern="[a-zA-Z0-9_]{3,20}" title="3-20 characters, only letters, numbers and underscore">
+    </div>
+    
+    <div class="form-group">
+      <label for="master_password">Master Password</label>
+      <input type="password" id="master_password" name="master_password" placeholder="Master password" required 
+             onkeyup="checkPasswordStrength()" />
+    </div>
+    
+    <div class="form-group">
+      <label for="confirm">Confirm Password</label>
+      <input type="password" id="confirm" name="confirm" placeholder="Confirm password" required />
+    </div>
+
+    <div style="margin: 10px 0;">
+      <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Password strength:</div>
+      <div style="height: 6px; background: #eee; border-radius: 3px; overflow: hidden;">
+        <div id="password-strength-bar" style="height: 100%; width: 0%; background: #ff4444; transition: all 0.3s;"></div>
+      </div>
+      <div id="password-feedback" style="font-size: 12px; margin-top: 5px;"></div>
+    </div>
+
+    <div style="display:flex; gap:10px; width:100%; justify-content:center; margin-top:6px;">
+      <button class="btn" type="submit">Register</button>
+      <a class="btn secondary" href="{{ url_for('login') }}">Back to login</a>
+    </div>
+  </form>
+
+  <script>
+    function checkPasswordStrength() {
+      const password = document.getElementById('master_password').value;
+      let strength = 0;
+      let feedback = "";
+      
+      // Кольори веселки
+      const rainbowColors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'violet', 'indigo'];
+      
+      // Перевірка вимог
+      const hasLength = password.length >= 16;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      const hasColor = rainbowColors.some(color => password.toLowerCase().includes(color));
+      
+      // Оновлення іконок вимог
+      document.getElementById('req-length').style.color = hasLength ? '#28a745' : '#dc3545';
+      document.getElementById('req-upper').style.color = hasUpper ? '#28a745' : '#dc3545';
+      document.getElementById('req-special').style.color = hasSpecial ? '#28a745' : '#dc3545';
+      document.getElementById('req-color').style.color = hasColor ? '#28a745' : '#dc3545';
+      
+      // Розрахунок міцності (кожен критерій = 25%)
+      if (hasLength) strength += 25;
+      if (hasUpper) strength += 25;
+      if (hasSpecial) strength += 25;
+      if (hasColor) strength += 25;
+      
+      // Оновлення індикатора
+      const strengthBar = document.getElementById('password-strength-bar');
+      const feedbackElement = document.getElementById('password-feedback');
+      
+      strengthBar.style.width = strength + '%';
+      
+      // Колір індикатора
+      if (strength < 25) {
+        strengthBar.style.background = '#ff4444';
+        feedback = '❌ Very weak password';
+      } else if (strength < 50) {
+        strengthBar.style.background = '#ffaa00';
+        feedback = '⚠️ Weak password';
+      } else if (strength < 75) {
+        strengthBar.style.background = '#ffdd00';
+        feedback = '👍 Good password';
+      } else if (strength < 100) {
+        strengthBar.style.background = '#99cc00';
+        feedback = '💪 Strong password';
+      } else {
+        strengthBar.style.background = '#00c851';
+        feedback = '🎉 Perfect password!';
+      }
+      
+      feedbackElement.textContent = feedback;
+      feedbackElement.style.color = strengthBar.style.background;
+    }
+
+    function validatePassword() {
+      const password = document.getElementById('master_password').value;
+      const confirm = document.getElementById('confirm').value;
+      const rainbowColors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'violet', 'indigo'];
+      
+      if (password.length < 16) {
+        alert('❌ Password must be at least 16 characters long');
+        return false;
+      }
+      
+      if (!/[A-Z]/.test(password)) {
+        alert('❌ Password must contain at least one uppercase letter');
+        return false;
+      }
+      
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        alert('❌ Password must contain at least one special character');
+        return false;
+      }
+      
+      if (!rainbowColors.some(color => password.toLowerCase().includes(color))) {
+        alert('❌ Password must contain a color of the rainbow (red, orange, yellow, green, blue, purple, pink, violet, indigo)');
+        return false;
+      }
+      
+      if (password !== confirm) {
+        alert('❌ Passwords do not match');
+        return false;
+      }
+      
+      return true;
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "model.html" %}
+{% block title %}Your Manager — Password Manager{% endblock %}
+{% block content %}
+  <h2>Welcome, {{ username }}!</h2>
+  <p class="lead">Your personal password manager — here we'll add sites, passwords, and more.</p>
+
+  <div style="margin-top:14px;">
+    <a class="btn" href="{{ url_for('dashboard') }}">Go to dashboard</a>
+    <a class="btn secondary" href="{{ url_for('logout') }}">Logout</a>
+  </div>
+{% endblock %}

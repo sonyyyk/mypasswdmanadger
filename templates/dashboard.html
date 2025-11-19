@@ -1,0 +1,151 @@
+{% extends "model.html" %}
+{% block title %}Dashboard — Password Manager{% endblock %}
+{% block content %}
+  <h2>Your saved passwords</h2>
+  <p class="lead">Stored locally and encrypted while you are signed in.</p>
+
+  {% if entries %}
+    <table aria-label="Saved passwords">
+      <thead>
+        <tr><th>Title</th><th>Login</th><th>Password</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+          <tr>
+            <td>{{ e.title }}</td>
+            <td>
+              <span class="hidden-login" id="login-{{ e.id }}">••••••••</span>
+              <span class="visible-login" id="visible-login-{{ e.id }}" style="display:none;">{{ e.login }}</span>
+            </td>
+            <td>
+              <span class="hidden-password" id="password-{{ e.id }}">••••••••</span>
+              <span class="visible-password" id="visible-password-{{ e.id }}" style="display:none;">{{ e.password }}</span>
+            </td>
+            <td>
+              <button class="btn small" onclick="togglePassword('{{ e.id }}')" id="btn-{{ e.id }}">
+                Show
+              </button>
+              <button class="btn small" onclick="copyPassword('{{ e.id }}')" id="copy-btn-{{ e.id }}" style="display:none; background: #17a2b8;">
+                Copy
+              </button>
+              
+              <!-- 🔐 Форма видалення з CSRF токеном -->
+              <form action="{{ url_for('delete_entry', entry_id=e.id) }}" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button class="btn secondary small" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="small" style="margin-top:6px;">You have no saved passwords yet.</p>
+    <a class="btn" href="{{ url_for('add_entry') }}" style="margin-top:12px;">Add first password</a>
+  {% endif %}
+
+  <script>
+    function togglePassword(entryId) {
+      const hiddenPassword = document.getElementById('password-' + entryId);
+      const visiblePassword = document.getElementById('visible-password-' + entryId);
+      const hiddenLogin = document.getElementById('login-' + entryId);
+      const visibleLogin = document.getElementById('visible-login-' + entryId);
+      const button = document.getElementById('btn-' + entryId);
+      const copyBtn = document.getElementById('copy-btn-' + entryId);
+
+      if (hiddenPassword.style.display !== 'none') {
+        // Показуємо пароль
+        hiddenPassword.style.display = 'none';
+        visiblePassword.style.display = 'inline';
+        hiddenLogin.style.display = 'none';
+        visibleLogin.style.display = 'inline';
+        button.textContent = 'Hide';
+        copyBtn.style.display = 'inline-block';
+        
+        // Автоматично ховаємо через 30 секунд
+        setTimeout(() => {
+          if (visiblePassword.style.display !== 'none') {
+            hidePassword(entryId);
+          }
+        }, 30000);
+        
+      } else {
+        hidePassword(entryId);
+      }
+    }
+
+    function hidePassword(entryId) {
+      const hiddenPassword = document.getElementById('password-' + entryId);
+      const visiblePassword = document.getElementById('visible-password-' + entryId);
+      const hiddenLogin = document.getElementById('login-' + entryId);
+      const visibleLogin = document.getElementById('visible-login-' + entryId);
+      const button = document.getElementById('btn-' + entryId);
+      const copyBtn = document.getElementById('copy-btn-' + entryId);
+
+      hiddenPassword.style.display = 'inline';
+      visiblePassword.style.display = 'none';
+      hiddenLogin.style.display = 'inline';
+      visibleLogin.style.display = 'none';
+      button.textContent = 'Show';
+      copyBtn.style.display = 'none';
+    }
+
+    function copyPassword(entryId) {
+      const visiblePassword = document.getElementById('visible-password-' + entryId);
+      const passwordText = visiblePassword.textContent;
+      
+      navigator.clipboard.writeText(passwordText).then(() => {
+        // Показуємо підтвердження копіювання
+        const copyBtn = document.getElementById('copy-btn-' + entryId);
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#28a745';
+        
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.background = '';
+        }, 2000);
+      });
+    }
+
+    // Автоматично ховаємо всі паролі при завантаженні сторінки
+    document.addEventListener('DOMContentLoaded', function() {
+      const allButtons = document.querySelectorAll('[id^="btn-"]');
+      allButtons.forEach(button => {
+        button.textContent = 'Show';
+      });
+    });
+  </script>
+
+  <style>
+    .btn.small {
+      padding: 6px 10px;
+      font-size: 12px;
+      margin: 2px;
+    }
+    .hidden-password, .hidden-login {
+      font-family: monospace;
+      letter-spacing: 2px;
+    }
+    .visible-password, .visible-login {
+      font-family: monospace;
+      background: #f0f8ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1e7ff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+    }
+  </style>
+{% endblock %}

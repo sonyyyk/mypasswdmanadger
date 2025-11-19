@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Password Manager{% endblock %}</title>
+
+  <style>
+    :root{
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --accent: #A3C7D6;       /* pastel blue for active */
+      --muted: #6b7280;
+      --text: #0f172a;
+      --radius: 12px;
+      --max-width: 760px;
+    }
+    html,body{ height:100%; margin:0; background:var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial; color:var(--text); }
+    .wrap{ min-height:100%; display:flex; align-items:center; justify-content:center; padding:36px 16px; }
+    .card{ width:100%; max-width:760px; background:var(--card); border-radius:12px; padding:26px; box-sizing:border-box; box-shadow:0 8px 24px rgba(16,24,40,0.06); }
+    header.site-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .brand h1{ margin:0; font-size:18px; }
+    .small{ color:var(--muted); font-size:13px; }
+    nav.topnav a{ color:var(--muted); text-decoration:none; margin-left:12px; font-size:14px; }
+    nav.topnav a.active{ color:var(--accent); font-weight:700; }
+    main.center{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px; padding-top:6px; padding-bottom:6px; }
+    h2{ margin:0; font-size:20px; }
+    p.lead{ margin:0; color:var(--muted); font-size:14px; }
+    .btn{ padding:10px 14px; border-radius:10px; border:none; background:linear-gradient(90deg,var(--accent), #F6D6C0); color:white; font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn.secondary{ background:transparent; border:1px solid #e6e9ef; color:var(--text); }
+    .form{ width:100%; max-width:420px; display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+    input[type="text"], input[type="password"]{ padding:12px; border-radius:10px; border:1px solid #e8eaef; background:#fbfdff; font-size:14px; outline:none; }
+    input:focus{ box-shadow:0 6px 14px rgba(163,199,214,0.12); border-color:var(--accent); }
+    .flash{ width:100%; padding:10px 12px; border-radius:8px; font-size:13px; text-align:center; margin-bottom:10px; }
+    .flash.success{ background:#eefaf4; color:#03684a; }
+    .flash.error{ background:#fff1f0; color:#8b1b1b; }
+    footer{ margin-top:16px; text-align:center; color:var(--muted); font-size:13px; }
+    @media (max-width:520px){ .card{ padding:18px } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main">
+      <header class="site-header">
+        <div class="brand">
+          <h1>Password Manager</h1>
+          <div class="small">Simple & private</div>
+        </div>
+
+        <nav class="topnav" aria-label="Main">
+          {% if session.username %}
+            <a href="{{ url_for('dashboard') }}" class="{% if request.path == url_for('dashboard') %}active{% endif %}">Dashboard</a>
+            <a href="{{ url_for('add_entry') }}" class="{% if request.path == url_for('add_entry') %}active{% endif %}">Add Password</a>
+            <a href="{{ url_for('logout') }}">Logout ({{ session.username }})</a>
+          {% else %}
+            <a href="{{ url_for('home') }}" class="{% if request.path == url_for('home') %}active{% endif %}">Home</a>
+            <a href="{{ url_for('login') }}" class="{% if request.path == url_for('login') %}active{% endif %}">Login</a>
+            <a href="{{ url_for('register') }}" class="{% if request.path == url_for('register') %}active{% endif %}">Register</a>
+          {% endif %}
+        </nav>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+            <div class="flash {{ 'success' if cat == 'success' else 'error' }}">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <main class="center">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer>&copy; Password Manager — Local prototype</footer>
+    </div>
+  </div>
+
+<div id="cat-assistant">
+    <img src="https://cs.pikabu.ru/post_img/2013/09/05/8/1378382279_2132894326.gif" class="cat" id="cat" alt="Walking Pixel Cat">
+    <div class="cat-speech-bubble" id="cat-speech">Hello! I'm your security buddy! 🐱</div>
+</div>
+<style>
+    #cat-assistant {
+        position: fixed;
+        z-index: 10000;
+        pointer-events: none;
+    }
+
+    .cat {
+        width: 120px;
+        height: 120px;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        pointer-events: auto;
+    }
+
+    .cat:hover {
+        transform: scale(1.2);
+        filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+    }
+
+    .cat-sitting {
+        transform: scale(0.9);
+        animation: sitBounce 2s infinite;
+    }
+
+    .cat-speech-bubble {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: white;
+        border: 2px solid #F6D6C0;
+        border-radius: 20px;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        max-width: 200px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        opacity: 0;
+        transition: all 0.3s ease;
+        font-size: 12px;
+        text-align: center;
+        font-weight: 500;
+        pointer-events: none;
+    }
+
+    .cat-speech-bubble.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Animations */
+    @keyframes runRight {
+        0% { transform: translateX(0) scaleX(1); }
+        100% { transform: translateX(100px) scaleX(1); }
+    }
+
+    @keyframes runLeft {
+        0% { transform: translateX(0) scaleX(-1); }
+        100% { transform: translateX(-100px) scaleX(-1); }
+    }
+
+    @keyframes sitBounce {
+        0%, 100% { transform: scale(0.9) translateY(0); }
+        50% { transform: scale(0.9) translateY(-3px); }
+    }
+
+    .running-right {
+        animation: runRight 0.5s linear infinite;
+    }
+
+    .running-left {
+        animation: runLeft 0.5s linear infinite;
+    }
+</style>
+
+<script>
+    const cat = document.getElementById('cat');
+    const speechBubble = document.getElementById('cat-speech');
+    const catContainer = document.getElementById('cat-assistant');
+    let currentPosition = { x: 100, y: 100 };
+    let currentDirection = 1; // 1 for right, -1 for left
+    let isRunning = false;
+    let isSitting = false;
+    let currentTip = 0;
+
+    const tips = [
+        "🔒 Never reuse passwords across sites!",
+        "🌈 Remember rainbow colors in passwords!",
+        "📏 16+ characters = super secure!",
+        "🔑 MFA protects against 99.9% of attacks!",
+        "💾 Encrypted with AES-256!",
+        "🚫 Never share your master password!",
+        "🔄 Change passwords every 3 months!",
+        "🐱 I'm here to keep you safe!",
+        "🎯 Mix uppercase, lowercase & numbers!",
+        "⚡ Special characters = stronger passwords!",
+        "👀 Watch out for phishing emails!",
+        "📱 Use authenticator apps for MFA!",
+        "🔐 Different passwords for different sites!",
+        "🎨 Get creative with passphrases!",
+        "💪 Strong passwords protect your life!"
+    ];
+
+    // Get interesting elements for the cat to interact with
+    function getInterestingElements() {
+        const elements = [
+            ...document.querySelectorAll('button, .btn, input[type="submit"]'),
+            ...document.querySelectorAll('a[href]'),
+            ...document.querySelectorAll('form')
+        ];
+        return elements.filter(el => {
+            const rect = el.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+        });
+    }
+
+    // Move cat to position
+    function moveCatTo(x, y) {
+        currentPosition = { x, y };
+        catContainer.style.left = x + 'px';
+        catContainer.style.top = y + 'px';
+    }
+
+    // Show tip
+    function showTip(message) {
+        speechBubble.textContent = message;
+        speechBubble.classList.add('show');
+        
+        setTimeout(() => {
+            speechBubble.classList.remove('show');
+        }, 4000);
+    }
+
+    // Run around randomly
+    function startRunning() {
+        if (isRunning || isSitting) return;
+        
+        isRunning = true;
+        cat.classList.remove('cat-sitting');
+        
+        const viewportWidth = window.innerWidth - 80;
+        const viewportHeight = window.innerHeight - 80;
+        
+        // Choose random target
+        const targetX = Math.random() * viewportWidth;
+        const targetY = 50 + Math.random() * (viewportHeight - 100);
+        
+        // Set direction based on movement
+        currentDirection = targetX > currentPosition.x ? 1 : -1;
+        cat.style.transform = `scaleX(${currentDirection})`;
+        
+        // Calculate distance and time
+        const distance = Math.sqrt(
+            Math.pow(targetX - currentPosition.x, 2) + 
+            Math.pow(targetY - currentPosition.y, 2)
+        );
+        const duration = Math.min(5000, distance * 10);
+        
+        // Animate movement
+        catContainer.style.transition = `all ${duration}ms linear`;
+        moveCatTo(targetX, targetY);
+        
+        // After reaching target
+        setTimeout(() => {
+            isRunning = false;
+            
+            // 30% chance to sit on something interesting
+            const interestingElements = getInterestingElements();
+            if (Math.random() < 0.3 && interestingElements.length > 0) {
+                sitOnElement(interestingElements[Math.floor(Math.random() * interestingElements.length)]);
+            } else {
+                // 70% chance to show tip after running
+                if (Math.random() < 0.7) {
+                    showRandomTip();
+                }
+                // Start running again after pause
+                setTimeout(startRunning, 2000 + Math.random() * 3000);
+            }
+        }, duration);
+    }
+
+    // Sit on an element
+    function sitOnElement(element) {
+        isSitting = true;
+        const rect = element.getBoundingClientRect();
+        
+        // Position cat on the element
+        const sitX = rect.left + rect.width / 2 - 40;
+        const sitY = rect.top - 50;
+        
+        moveCatTo(sitX, sitY);
+        cat.classList.add('cat-sitting');
+        
+        // Show context-aware tip
+        const tagName = element.tagName.toLowerCase();
+        let contextTip = "";
+        
+        if (element.type === 'submit' || element.classList.contains('btn')) {
+            contextTip = "🚀 Ready to click this button? I'll watch over you!";
+        } else if (tagName === 'input') {
+            contextTip = "🔐 Typing passwords? Make them strong and unique!";
+        } else if (tagName === 'a') {
+            contextTip = "🌐 Navigating around? Don't forget to logout!";
+        } else if (tagName === 'form') {
+            contextTip = "📝 Filling a form? Double-check before submitting!";
+        } else {
+            contextTip = tips[Math.floor(Math.random() * tips.length)];
+        }
+        
+        showTip(contextTip);
+        
+        // Sit for 4-8 seconds, then run again
+        setTimeout(() => {
+            isSitting = false;
+            cat.classList.remove('cat-sitting');
+            setTimeout(startRunning, 1000);
+        }, 4000 + Math.random() * 4000);
+    }
+
+    // Show random tip
+    function showRandomTip() {
+        const pageTips = getPageSpecificTips();
+        const allTips = [...pageTips, ...tips];
+        showTip(allTips[Math.floor(Math.random() * allTips.length)]);
+    }
+
+    // Get page-specific tips
+    function getPageSpecificTips() {
+        const path = window.location.pathname;
+        
+        if (path.includes('register')) {
+            return [
+                "🌈 Don't forget rainbow colors!",
+                "🎯 Make it memorable but secure!",
+                "📏 16 characters minimum!",
+                "🔤 Mix uppercase & lowercase!",
+                "⚡ Add special characters!"
+            ];
+        } else if (path.includes('login')) {
+            return [
+                "🔐 Check authenticator for MFA!",
+                "👋 Welcome back! Security first!",
+                "🚨 Too many failures = lock!",
+                "💡 Password managers rock!"
+            ];
+        } else if (path.includes('dashboard')) {
+            return [
+                "👀 Click 'Show' to reveal passwords!",
+                "📋 'Copy' for safe pasting!",
+                "🗑️ Delete unused entries!",
+                "➕ Add all your services!"
+            ];
+        }
+        return [];
+    }
+
+    // Click handler - show tip immediately
+    cat.addEventListener('click', function() {
+        showRandomTip();
+        
+        // If sitting, start running
+        if (isSitting) {
+            isSitting = false;
+            cat.classList.remove('cat-sitting');
+            setTimeout(startRunning, 500);
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Start position
+        moveCatTo(100, 100);
+        
+        // Start first run after 3 seconds
+        setTimeout(startRunning, 3000);
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            // Keep cat in bounds
+            const viewportWidth = window.innerWidth - 80;
+            const viewportHeight = window.innerHeight - 80;
+            currentPosition.x = Math.min(currentPosition.x, viewportWidth);
+            currentPosition.y = Math.min(currentPosition.y, viewportHeight);
+            moveCatTo(currentPosition.x, currentPosition.y);
+        });
+    });
+</script>
+</body>
+</html>

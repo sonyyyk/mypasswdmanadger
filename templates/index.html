@@ -1,0 +1,11 @@
+{% extends "model.html" %}
+{% block title %}Welcome — Password Manager{% endblock %}
+{% block content %}
+  <h2>Welcome to the Password Manager</h2>
+  <p class="lead">Keep your passwords safe and encrypted. Create an account to start.</p>
+
+  <div style="width:100%; max-width:420px; margin-top:18px; display:flex; gap:10px; flex-direction:column;">
+    <a href="{{ url_for('register') }}" class="btn" style="text-align:center;">Create account</a>
+    <a href="{{ url_for('login') }}" class="btn secondary" style="text-align:center;">I already have an account</a>
+  </div>
+{% endblock %}

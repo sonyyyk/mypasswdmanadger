@@ -1,0 +1,17 @@
+{% extends "model.html" %}
+{% block title %}Forgot Password — Password Manager{% endblock %}
+{% block content %}
+  <h2>Don't forget your password! 😿</h2>
+  <p class="lead">Your master password protects all your secrets.</p>
+
+  <div style="margin: 20px 0; text-align: center;">
+    <img src="{{ url_for('serve_static', filename='miau-miau-miau-cat.gif') }}" 
+         alt="Crying cat" 
+         style="max-width: 200px; border-radius: 10px;">
+    <p class="small">This crying cat understands your pain!</p>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <a class="btn" href="{{ url_for('login') }}">Back to Login</a>
+  </div>
+{% endblock %}
