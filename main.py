@@ -60,9 +60,7 @@ def login_required(f):
     return decorated_function
 
 def validate_username(username):
-    if not username or not isinstance(username, str):
-        return False
-    return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))
+    return bool(re.match(r'^\w{3,20}$', username))
 
 @app.route('/favicon.ico')
 def favicon():
@@ -189,7 +187,7 @@ def dashboard():
                 'login': decrypted_login,
                 'password': decrypted_password
             })
-        except Exception as e:
+        except Exception:
             continue
 
     return render_template("dashboard.html", username=username, entries=entries)
