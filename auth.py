@@ -1,48 +1,27 @@
-from flask import flash, session
+from flask import session, g
 import pyotp
-import qrcode
-from io import BytesIO
-import base64
-from datetime import datetime, timedelta
-from storage import load_users, save_users, get_user_salt, get_user_mfa_secret
-from encryption import derive_key
 from werkzeug.security import check_password_hash
+from storage import load_users
+from encryption import derive_key
+import base64
 
 FAILED_LOGINS = {}
 
 def record_failed_attempt(username):
-    """Record failed login attempt"""
     if username not in FAILED_LOGINS:
-        FAILED_LOGINS[username] = {
-            'attempts': 0,
-            'last_attempt': datetime.now(),
-            'blocked_until': None
-        }
-    
+        FAILED_LOGINS[username] = {'attempts': 0}
     FAILED_LOGINS[username]['attempts'] += 1
-    FAILED_LOGINS[username]['last_attempt'] = datetime.now()
-    
-    if FAILED_LOGINS[username]['attempts'] >= 3:
-        FAILED_LOGINS[username]['blocked_until'] = datetime.now() + timedelta(seconds=60)
 
 def is_user_blocked(username):
-    """Check if user is temporarily blocked"""
-    if username in FAILED_LOGINS:
-        failed_data = FAILED_LOGINS[username]
-        if failed_data.get('blocked_until') and datetime.now() < failed_data['blocked_until']:
-            remaining = int((failed_data['blocked_until'] - datetime.now()).total_seconds())
-            return True, remaining
-        elif failed_data.get('blocked_until') and datetime.now() >= failed_data['blocked_until']:
-            del FAILED_LOGINS[username]
+    if username in FAILED_LOGINS and FAILED_LOGINS[username]['attempts'] >= 3:
+        return True, 60
     return False, 0
 
 def clear_failed_attempts(username):
-    """Clear failed attempts on successful login"""
     if username in FAILED_LOGINS:
         del FAILED_LOGINS[username]
 
 def setup_mfa_qr(username):
-    """Generate QR code for MFA setup"""
     users = load_users()
     user_data = users.get(username)
     
@@ -52,15 +31,9 @@ def setup_mfa_qr(username):
     totp = pyotp.TOTP(user_data['mfa_secret'])
     uri = totp.provisioning_uri(username, issuer_name="Password Manager")
     
-    img = qrcode.make(uri)
-    buffered = BytesIO()
-    img.save(buffered, format="PNG")
-    qr_code = base64.b64encode(buffered.getvalue()).decode()
-    
-    return qr_code, user_data['mfa_secret']
+    return uri, user_data['mfa_secret']
 
 def verify_login(username, password, mfa_code):
-    """Verify username, password and MFA code"""
     users = load_users()
     user_data = users.get(username)
     
@@ -77,17 +50,44 @@ def verify_login(username, password, mfa_code):
     return True, "Success"
 
 def setup_session(username, password):
-    """Setup user session after successful login"""
-    # Get stored salt for consistent key derivation
-    salt = get_user_salt(username)
+    """Тепер зберігаємо тільки salt, не ключ!"""
+    users = load_users()
+    user_data = users.get(username)
     
-    if not salt:
-        # Fallback for users without salt (should not happen after migration)
-        import os
-        salt = os.urandom(16)
-    
-    # Generate the same encryption key using stored salt
-    encryption_key, _ = derive_key(password, salt)
-    
+    if not user_data:
+        return False
+        
+    session.clear()
     session["username"] = username
-    session["encryption_key"] = base64.b64encode(encryption_key).decode('utf-8')
+    session["user_salt"] = user_data['encryption_salt']  # Тільки salt!
+    session["authenticated"] = True
+    session.permanent = True
+    
+    # Тимчасово зберігаємо пароль в контексті запиту
+    g.master_password = password
+    return True
+
+def get_encryption_key():
+    """Отримуємо ключ на льоту"""
+    if not session.get("authenticated") or not session.get("username"):
+        return None
+        
+    salt_b64 = session.get("user_salt")
+    if not salt_b64:
+        return None
+        
+    # Отримуємо пароль з контексту
+    master_password = getattr(g, 'master_password', None)
+    if not master_password:
+        return None
+        
+    try:
+        salt = base64.b64decode(salt_b64)
+        encryption_key, _ = derive_key(master_password, salt)
+        return encryption_key
+    except Exception:
+        return None
+
+def validate_session():
+    """Перевіряємо валідність сесії"""
+    return session.get("authenticated", False)
