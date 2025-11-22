@@ -7,9 +7,34 @@ import re
 import base64
 from datetime import datetime
 
-from auth import *
-from storage import *
-from encryption import *
+from auth import (
+    verify_login, 
+    setup_session, 
+    validate_session,
+    setup_mfa_qr,
+    record_failed_attempt,
+    is_user_blocked,
+    clear_failed_attempts,
+    get_encryption_key
+)
+from storage import (
+    load_users,
+    save_users,
+    load_user_passwords,
+    save_user_passwords,
+    create_user,
+    user_exists,
+    get_user_data,
+    delete_user_passwords,
+    upgrade_user_format,
+    migrate_existing_users
+)
+
+from encryption import (
+    derive_key,
+    encrypt_data,
+    decrypt_data
+)
 
 # Basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
