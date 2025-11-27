@@ -3,5 +3,15 @@
     "password_hash": "pbkdf2:sha256:600000$cOHrmWEWEPN7yeqf$8838c348dcf68a484c3faf714c964cd443a81b10054b3f72c11be8dafdd3b2de",
     "mfa_secret": "KFEOFHG3PR3BF3NNBEM4RKXIILUBYUMI",
     "encryption_salt": "rCMzK4EPOu+cxZ9dzuuYSw=="
+  },
+  "111": {
+    "password_hash": "pbkdf2:sha256:600000$MQxZsmxOD2j2DB1U$bd81e54a359e8b7a5925d8b10b95798f07062c2dfb22f5c6f7fa7dcb6f47e9b2",
+    "mfa_secret": "K3XBIC54TD7H2UGVHO75KRDWHQE67HOH",
+    "encryption_salt": "wjKs2zewrTDlQUldEbra8Q=="
+  },
+  "sofi__parfylo": {
+    "password_hash": "pbkdf2:sha256:600000$JnRF1be1bpoDPRTF$7ced57a4d948da4cf26ff69de30f4aa2ebcd745906293bc285218ce1867e27f2",
+    "mfa_secret": "ZPR6DN5W72EHUL6G6WYCCIBPXG3F7X3C",
+    "encryption_salt": "W4fr/MITJnZiOdtrzwgETw=="
   }
 }
