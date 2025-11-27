@@ -13,5 +13,10 @@
     "password_hash": "pbkdf2:sha256:600000$JnRF1be1bpoDPRTF$7ced57a4d948da4cf26ff69de30f4aa2ebcd745906293bc285218ce1867e27f2",
     "mfa_secret": "ZPR6DN5W72EHUL6G6WYCCIBPXG3F7X3C",
     "encryption_salt": "W4fr/MITJnZiOdtrzwgETw=="
+  },
+  "anneetttaa": {
+    "password_hash": "pbkdf2:sha256:600000$JwIhOlzmdi4q6wiI$3a87d1464e30b1a27f0c743ae433489569d2e1562b4e550b4828bbcfb5fd36ee",
+    "mfa_secret": "O7IU4EYWUHIS5MMJSPD2EOW2VLF35LBH",
+    "encryption_salt": "dp+qaDv2vLNx9EIHIaFBYA=="
   }
 }
