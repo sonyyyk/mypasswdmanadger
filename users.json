@@ -38,5 +38,10 @@
     "password_hash": "pbkdf2:sha256:600000$BHBZaoWvupPKYJQM$9028fef53004bcd0ec58b4ed586fbe95d19454e470a871f926b145654d73b3be",
     "mfa_secret": "4RITAPNF2ZCRUMVH5RCMQQT2OXEUPTFQ",
     "encryption_salt": "VfEr8dcIK20gniX6gEnURw=="
+  },
+  "666": {
+    "password_hash": "pbkdf2:sha256:600000$G2w2usYlEGlOOptD$1864f93fc1ad486efe7ca921261e9cbed7315ce178e19e73451853e14a8a8e78",
+    "mfa_secret": "JXBZNO3RRMSZ3FTISMRE5JL3LUHZSXLH",
+    "encryption_salt": "F37c3qZ2zqgPosvJCV/35Q=="
   }
 }

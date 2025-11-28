@@ -8,7 +8,7 @@ USERS_FILE = "users.json"
 PASSWORDS_FILE = "passwords.json"
 
 def load_users():
-    """Load all users from JSON file"""
+    """Load all users from JSON file."""
     if os.path.exists(USERS_FILE):
         try:
             with open(USERS_FILE, "r", encoding="utf-8") as f:
@@ -19,7 +19,7 @@ def load_users():
     return {}
 
 def save_users(users):
-    """Save users to JSON file with atomic write"""
+    """Save users to JSON file atomically."""
     try:
         tmp = USERS_FILE + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
@@ -30,7 +30,7 @@ def save_users(users):
         print(f"❌ Error saving users: {e}")
 
 def load_user_passwords(username):
-    """Load encrypted passwords for specific user"""
+    """Load encrypted passwords for a specific user."""
     try:
         if os.path.exists(PASSWORDS_FILE):
             with open(PASSWORDS_FILE, "r", encoding="utf-8") as f:
@@ -42,121 +42,87 @@ def load_user_passwords(username):
         return {}
 
 def save_user_passwords(username, passwords_data):
-    """Save encrypted passwords for specific user"""
+    """Save encrypted passwords for a specific user atomically."""
     try:
-        # Load all data
         all_data = {}
         if os.path.exists(PASSWORDS_FILE):
             with open(PASSWORDS_FILE, "r", encoding="utf-8") as f:
                 all_data = json.load(f)
-        
-        # Update specific user's data
         all_data[username] = passwords_data
-        
-        # Atomic write to temporary file
         tmp = PASSWORDS_FILE + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(all_data, f, indent=2, ensure_ascii=False)
-        
-        # Replace original file
         os.replace(tmp, PASSWORDS_FILE)
         print(f"✅ Passwords saved for user: {username}")
-        
     except Exception as e:
         print(f"❌ Error saving passwords for {username}: {e}")
 
-def upgrade_user_format():
-    """Upgrade old user format to new format with MFA"""
+def migrate_existing_users():
+    """Upgrade old users to new format with MFA and encryption salt."""
     users = load_users()
     changed = False
-    
-    for username, value in users.items():
-        # If old format (just password hash string)
-        if isinstance(value, str):
+    import os, base64
+
+    for username, user_data in users.items():
+        if isinstance(user_data, str):
+            # Old format: just password hash string
             users[username] = {
-                'password_hash': value,
-                'mfa_secret': pyotp.random_base32()
+                'password_hash': user_data,
+                'mfa_secret': pyotp.random_base32(),
+                'encryption_salt': base64.b64encode(os.urandom(16)).decode('utf-8')
             }
             changed = True
-    
+        elif isinstance(user_data, dict):
+            if 'mfa_secret' not in user_data:
+                user_data['mfa_secret'] = pyotp.random_base32()
+                changed = True
+            if 'encryption_salt' not in user_data:
+                user_data['encryption_salt'] = base64.b64encode(os.urandom(16)).decode('utf-8')
+                changed = True
+
     if changed:
         save_users(users)
-        print("✅ User format upgraded")
+        print("✅ Existing users migrated")
 
 def create_user(username, password):
-    """Create new user with password hash, MFA secret and encryption salt"""
-    users = load_users()
-    
-    # Generate encryption salt and key
+    """Create a new user with password hash, MFA secret, and encryption salt."""
     from encryption import derive_key
+    import base64
+
+    users = load_users()
     encryption_key, salt = derive_key(password)
-    
+
     users[username] = {
         'password_hash': generate_password_hash(password),
         'mfa_secret': pyotp.random_base32(),
-        'encryption_salt': base64.b64encode(salt).decode('utf-8')  # Store salt for consistent key derivation
+        'encryption_salt': base64.b64encode(salt).decode('utf-8')
     }
+
     save_users(users)
     print(f"✅ User {username} created successfully")
 
-def get_user_salt(username):
-    """Get encryption salt for user"""
-    users = load_users()
-    user_data = users.get(username, {})
-    salt_b64 = user_data.get('encryption_salt')
-    if salt_b64:
-        return base64.b64decode(salt_b64)
-    return None
-
-def get_user_mfa_secret(username):
-    """Get MFA secret for user"""
-    users = load_users()
-    user_data = users.get(username, {})
-    return user_data.get('mfa_secret')
-
-def migrate_existing_users():
-    """Add encryption salt for existing users who don't have it"""
-    users = load_users()
-    changed = False
-    
-    for username, user_data in users.items():
-        if isinstance(user_data, dict) and 'encryption_salt' not in user_data:
-            # Generate random salt for existing users
-            import os
-            salt = os.urandom(16)
-            user_data['encryption_salt'] = base64.b64encode(salt).decode('utf-8')
-            changed = True
-    
-    if changed:
-        save_users(users)
-        print("✅ Added salt for existing users")
-
-def user_exists(username):
-    """Check if user exists"""
-    users = load_users()
-    return username in users
-
 def get_user_data(username):
-    """Get complete user data"""
+    """Get complete user data dictionary."""
     users = load_users()
     return users.get(username)
 
+def user_exists(username):
+    """Check if a user exists in the system."""
+    users = load_users()
+    return username in users
+
 def delete_user_passwords(username):
-    """Delete all passwords for user (account deletion)"""
+    """Delete all passwords for a specific user."""
     try:
         if os.path.exists(PASSWORDS_FILE):
             with open(PASSWORDS_FILE, "r", encoding="utf-8") as f:
                 all_data = json.load(f)
-            
             if username in all_data:
                 del all_data[username]
-                
                 tmp = PASSWORDS_FILE + ".tmp"
                 with open(tmp, "w", encoding="utf-8") as f:
                     json.dump(all_data, f, indent=2, ensure_ascii=False)
-                
                 os.replace(tmp, PASSWORDS_FILE)
                 print(f"✅ Passwords deleted for user: {username}")
-                
     except Exception as e:
         print(f"❌ Error deleting passwords for {username}: {e}")
