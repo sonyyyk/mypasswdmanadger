@@ -44,7 +44,7 @@ app.secret_key = os.urandom(24)
 
 # Security config
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False  # True in production
+app.config['SESSION_COOKIE_SECURE'] = True  # True у production з HTTPS
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 csrf = CSRFProtect(app)
