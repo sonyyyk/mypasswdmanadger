@@ -9,39 +9,14 @@
     "mfa_secret": "K3XBIC54TD7H2UGVHO75KRDWHQE67HOH",
     "encryption_salt": "wjKs2zewrTDlQUldEbra8Q=="
   },
-  "sofi__parfylo": {
-    "password_hash": "pbkdf2:sha256:600000$JnRF1be1bpoDPRTF$7ced57a4d948da4cf26ff69de30f4aa2ebcd745906293bc285218ce1867e27f2",
-    "mfa_secret": "ZPR6DN5W72EHUL6G6WYCCIBPXG3F7X3C",
-    "encryption_salt": "W4fr/MITJnZiOdtrzwgETw=="
+  "777": {
+    "password_hash": "pbkdf2:sha256:600000$RSx9wWABcpTTJQoN$9b5f162f9f77819915f0e05cded9abf0edbf52ceeecb3a239518ef3a04ac1564",
+    "mfa_secret": "SEL5KDFQJ4QTTOJGNPANMSECNB3G4KZI",
+    "encryption_salt": "U+5DIF0X9RMP6hBWE7bEtg=="
   },
-  "anneetttaa": {
-    "password_hash": "pbkdf2:sha256:600000$JwIhOlzmdi4q6wiI$3a87d1464e30b1a27f0c743ae433489569d2e1562b4e550b4828bbcfb5fd36ee",
-    "mfa_secret": "O7IU4EYWUHIS5MMJSPD2EOW2VLF35LBH",
-    "encryption_salt": "dp+qaDv2vLNx9EIHIaFBYA=="
-  },
-  "222": {
-    "password_hash": "pbkdf2:sha256:600000$GXmTNk6n0bwzkc6Z$e83e87b675fd22e22df886cb7d0c1f9be0a21f8177bfbad15ffa5fc9e0285e07",
-    "mfa_secret": "EM64WQVKADBQWKI4CKAOSM6IZVUTCBKL",
-    "encryption_salt": "/1TmvUn4Z8J+ZSkMLldWTg=="
-  },
-  "333": {
-    "password_hash": "pbkdf2:sha256:600000$EMhhMrCJTNqIbq7a$81005805ae2f6df05dbe9431987a0679d3610a15fd7d6b413d9240337edf71ae",
-    "mfa_secret": "I2CMZWUZH3PCPVPH6SAM6F3MG63FZ46H",
-    "encryption_salt": "DMYO6PFVaOi+zIkaOmvESw=="
-  },
-  "1234567": {
-    "password_hash": "pbkdf2:sha256:600000$ZJXVw28NgVSUpnaq$c7fa65ee6d1b980e395179e02c2d36d7f58a545f2fc496f3d5831a70db1308d7",
-    "mfa_secret": "CLJOFK4LEE266OG5ZCYI2IBK3JZBXKKC",
-    "encryption_salt": "pZTwt6JuCioMPL4vAuVWOA=="
-  },
-  "09876543": {
-    "password_hash": "pbkdf2:sha256:600000$BHBZaoWvupPKYJQM$9028fef53004bcd0ec58b4ed586fbe95d19454e470a871f926b145654d73b3be",
-    "mfa_secret": "4RITAPNF2ZCRUMVH5RCMQQT2OXEUPTFQ",
-    "encryption_salt": "VfEr8dcIK20gniX6gEnURw=="
-  },
-  "666": {
-    "password_hash": "pbkdf2:sha256:600000$G2w2usYlEGlOOptD$1864f93fc1ad486efe7ca921261e9cbed7315ce178e19e73451853e14a8a8e78",
-    "mfa_secret": "JXBZNO3RRMSZ3FTISMRE5JL3LUHZSXLH",
-    "encryption_salt": "F37c3qZ2zqgPosvJCV/35Q=="
+  "aanneeettaa": {
+    "password_hash": "pbkdf2:sha256:600000$HkHymvswA3pPLB2u$f5a5107d876397165c5387088c8b3563d21cec4b35dc5b5912c79a38949906db",
+    "mfa_secret": "UFGD74PFVJSHSEWSVTEPBIADUJZRKP6M",
+    "encryption_salt": "xzx67DT4AlVsuj1B6m1hVw=="
   }
 }

@@ -26,7 +26,6 @@ from storage import (
     user_exists,
     get_user_data,
     delete_user_passwords,
-    upgrade_user_format,
     migrate_existing_users
 )
 
@@ -265,7 +264,6 @@ def serve_static(filename):
     return send_from_directory('static/img', filename)
 
 if __name__ == "__main__":
-    upgrade_user_format()
     migrate_existing_users()
     print("🚀 Starting Password Manager...")
     app.run(debug=True, host='127.0.0.1', port=5000)
