@@ -35,68 +35,69 @@ The password manager allows users to securely store, retrieve, and manage passwo
 ---
 
 ## Project Structure
+templates/                # HTML templates
 
-MPPA/
-├── .venv/                    # Python virtual environment
-├── __pycache__/              # Python cache files
-├── Include/                  # Include files (typically for virtual environment)
-├── Lib/                      # Python libraries (for virtual environment)
-├── Scripts/                  # Scripts (for virtual environment)
-├── app/                      # Main application directory
-├── logs/                     # Directory for log files
-├── static/
-│   └── img/                  # Static images
-├── templates/                # HTML templates
-│   ├── add.html
-│   ├── dashboard.html
-│   ├── forgot.html
-│   ├── index.html
-│   ├── login.html
-│   ├── model.html
-│   ├── register.html
-│   ├── setup_infa.html
-│   └── welcome.html
-├── app.log                   # Application log file
-├── auth.py                   # Authentication module
-├── encryption.py             # Encryption module
-├── main.py                   # Main application file
-├── passwords.json            # Passwords file (encrypted)
-├── storage.py                # Storage handling module
-├── upgrade_users.py          # User upgrade script
-├── users.json                # User data file
-└── pyvenv.cfg               # Virtual environment configuration
-
----
-
-## Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/sonyyyk/mypasswdmanadger.git
-cd project
+- app.log                   # Application log file
+- auth.py                   # Authentication module
+- encryption.py             # Encryption module
+- main.py                   # Main application file
+- passwords.json            # Passwords file (encrypted)
+- storage.py                # Storage handling module
+- upgrade_users.py          # User upgrade script
+- users.json                # User data file
 
 
-Usage
+# Technologies Used
 
-Register: Create a new user with a master password (at least 16 characters, must include uppercase, lowercase, and a number).
-MFA Setup: Scan the QR code with a TOTP authenticator app.
-Login: Enter username, password, and MFA code.
-Dashboard: Add, view, and delete password entries securely.
+## Backend
+- **Flask** (routing, sessions, templates)
+- **Python 3**
 
+## Security & Cryptography
+- **cryptography** — AES-256-GCM encryption
+- **argon2-cffi** — Argon2id secure hashing
+- **pyotp** — TOTP MFA support
+- **qrcode** — QR code generation
+- **PBKDF2** password-based key derivation
 
+## Data Storage
+- Encrypted JSON file using AES-256-GCM
+- Authenticated encryption (nonce + tag)
 
-Security Details
+## Frontend
+- HTML templates
+- CSS styling (minimal UI)
 
-Encryption: AES symmetric encryption for stored passwords.
-Key Derivation: PBKDF2 with per-user salt.
+# Security Architecture
 
-MFA: TOTP (Time-based One-Time Password).
-CSRF Protection: All POST forms include csrf_token.
+## 1. Password Hashing (Argon2id)
+User passwords are hashed with Argon2id, offering strong resistance to brute-force and GPU attacks.
 
-Session Security: SESSION_COOKIE_HTTPONLY, SESSION_COOKIE_SAMESITE=Lax, session expiration handled.
-Brute-force protection: Maximum 3 failed login attempts, blocked for 60 seconds.
+## 2. Master Key Derivation
+On login, the system derives:
+`Master Key = PBKDF2(user_password + user_salt)`
 
-XSS & Input Validation: All user input escaped in templates, username validated with regex.
+Master keys are never stored, only generated during login.
 
+## 3. Full AES-GCM Vault Encryption
+All user data inside passwords.json is fully encrypted:
+- AES-256-GCM
+- Unique nonce
+- Authentication tag
+- No plaintext ever stored on disk
 
+## 4. Multi-Factor Authentication (TOTP)
+Supports popular authenticator apps:
+- Google Authenticator
+- Authy
+- Microsoft Authenticator
+- 1Password OTP
+
+A QR code is generated automatically during registration.
+
+## 5. Login Security
+- Brute-force protection
+- Lockout after repeated failed attempts
+- Secure session cookies
+- CSRF protection enabled
+- No sensitive data stored in session
